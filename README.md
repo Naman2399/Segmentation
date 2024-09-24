@@ -56,23 +56,6 @@ SemanticSegmentationCityscapes/
    (You can also create the test dataset, as outlined in Create_Data.ipynb and test your results using test.py.)
    
  ---------------------------------------------------------------------------------------
-## Computational Details
-
-This work is focused on exploring different image segmentation models using a well-understood and well-annotated dataset. Moroever, this work is designed for running on modest resources (in my case, a gaming laptop with 1 GPU). The computational details are summarized in Table 1 below:
-
-
-| Table 1          | Computational Details                                                 |
-| ---------        |  --------------------                                                 |
-| Hardware	       |  1 GPU NVIDIA GeForce GTX 1660 Ti                                     |
-| Framework	    | PyTorch 1.8.1 (Paszke & et al, 2019)                                     |
-| Number of Epochs |	500                                                                   |
-| Batch Size	   |   8                                                                      |
-| Learning rate	|  1x10-3                                                                  |
-| Optimizer	    | Adam optimizer with weight decay of 1 x10-5 (Kingma & Ba, 2014)          |
-| Criterion	    | Cross Entropy Loss with Focal Loss (Lin et al., 2018)                    |
-| Dataset	      | Cityscapes dataset (using only the Hamburg and Frankfurt subsets)        |
-| Evaluation Metrics |	Global accuracy, average accuracy and Intersection-over-Union (IoU) |
-
 
 We want to 
 1. Visualize the Cityscapes dataset
@@ -101,17 +84,10 @@ which can be activated for your Python environment using:
 
 ## Training the Models
 
-You can train the models using the shallow network, my_FCN, using the following command:
-
-<code> python -m seg_code.train -m my_fcn </code>
-
 To train the reference UNet, the code is: 
 
 <code> python -m seg_code.train -m unet </code>
 
-To train the DeepLab (with pretrained ResNet-101), the code is: 
-
-<code> python -m seg_code.train -m deeplab </code>
 
 --------------------------------------------------------------------------------------------------------
 
@@ -119,9 +95,8 @@ To train the DeepLab (with pretrained ResNet-101), the code is:
 
 You can test the models on the test set using the following command:
 
-<code> python -m seg_code.test -m my_fcn </code>
+<code> python -m seg_code.test -m unet </code>
 
-Instead of 'my_fcn', you can also check out 'unet' or 'deeplab'.
 
 ---------------------------------------------------------------------
 
@@ -148,7 +123,7 @@ _____________________________________________________________________
 
 If you want to use Tensorboard, here is some extra code:
 
-<code> python -m seg_code.train -m my_fcn --log_dir myfcn_test -n 500 </code>
+<code> python -m seg_code.train -m unet --log_dir unet_test -n 500 </code>
 
 followed by:
 
@@ -163,49 +138,9 @@ click on the address you get and open it in a web browser. See the interactive t
 The results that I've collected according to the details in Table 1 are shown in Figure 5. (These data and images were taken from TensorBoard results.)
 
 ![image info](./pics/Figure_5all_deep.png)
-Figure 5. Model performance. Comparison of segmentation maps predicted for each of the models (DeepLabV3+, U-Net, and my_FCN) after 500 epochs are shown in the left-side panel. The right-side panel shows the evolution of the training loss (top right) and IoU values on the validation data (bottom right).
+Figure 5. Model performance. Comparison of segmentation maps predicted for each of the models U-Net after 500 epochs are shown in the left-side panel. The right-side panel shows the evolution of the training loss (top right) and IoU values on the validation data (bottom right).
 
 ____________________________
-## To-DO List
-
-Clearly the results above aren't superb. To improve the models' results, using the full dataset would of course be advantageous. Furthermore, increasing the input image resolution would likely improve the results (the data augmentation techniques used here may be too aggressive). However, for my experiments with increasing the image resolution I also had to decrease the **batch size to 2** to prevent CUDA out of memory errors (you may not encounter this issue on your system). 
-
-To use the full dataset, simply choose "full" in the create_directories function in Create_Data.ipynb file.
-
-For example:
- 
-```
-create_directories(gtFineDIR_train, DEST_ROOT_Train, "full") 
-create_directories(ImgDIR_train, DEST_ROOT_Train, "full")
-```
-
-
-Running on the full dataset will increase the runtime, but will require fewer epochs to achieve more accurate results. More data is better than more epochs. :) 
- 
- Here are a few ideas to try:
- 
-- [ ] Increase the dataset size
-- [ ] Increase input image resolution
-- [ ] Implement learning rate scheduler
-- [ ] Try different data augmentation techniques (or choose none at all)
-- [ ] Change the batch size
-- [ ] Test out a different encoder in DeepLab architecture
-
-** Personal Motivation **
-
-In doing this work, the main questions I wanted to answer for myself were:
-
-* How practical is it to run a semantic segmentation model on a **real-world dataset** using my gaming laptop (1 GPU) ? 
-  (**Answer:** Quite practical and many people do it this way; however, I ran into CUDA out-of-memory errors when trying to work with high-res inputs.)
-
-* How easy is it to **find and download an interesting dataset** for this task ? How much useful data is available for free ? 
-  (**Answer:** Not nearly as easy as I thought and many datasets require you to jump through hoops to download them; still, there are some interesting datasets out there if you search hard enough.)
-
-* How easy is it to **construct and understand** a semantic segmentation model ? 
-  (**Answer:** UNet is fairly straightforward; DeepLabV3+ is less so and involves many layers and modules.)
-
-* What semantic segmentation models are currently considered **state-of-the-art** ? How do these perform when compared to a simple UNet ? 
-  (**Answer:** DeepLabV3+, ERFNet, PSPNet, etc. have been developed most recently (circa 2018); I focused on DeepLabV3+ here. The DeepLab models are optimized for learning on high-resolution data, which unfortunately may require more substantial VRAM than my current laptop's hardware. Consequently, DeepLabV3+ did not outperform UNet in this current study since this work was based on using very low-res inputs.)
   
 ## Thank you for checking out my repo!
 ____________________________________________________________________________________
